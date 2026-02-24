@@ -1,22 +1,29 @@
-from fastapi import FastAPI, HTTPException
+print("THIS IS THE API FILE BEING EXECUTED")
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-from datetime import datetime
-from typing import Optional
-
-from zodiac_persona.main import calculate_birth_chart
 
 app = FastAPI(title="Zodiac Persona API", version="1.0.0")
 
-# Allow CORS for local frontend
+# 🔥 Put CORS immediately after app creation
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, restrict this to frontend URL
-    allow_credentials=True,
+    allow_origins=[
+        "http://localhost:5174",
+        "http://127.0.0.1:5174",
+    ],
+    allow_credentials=False,  # 👈 VERY IMPORTANT
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
+@app.get("/cors-test")
+def cors_test():
+    return {"message": "cors middleware active"}
+# THEN import other heavy modules
+from fastapi import HTTPException
+from pydantic import BaseModel
+from datetime import datetime
+from typing import Optional
+from zodiac_persona.main import calculate_birth_chart
 class BirthData(BaseModel):
     name: str = "User"
     dob: str  # ISO format string e.g., 2000-01-01T12:00:00
