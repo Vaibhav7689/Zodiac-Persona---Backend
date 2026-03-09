@@ -7,11 +7,8 @@ app = FastAPI(title="Zodiac Persona API", version="1.0.0")
 # 🔥 Put CORS immediately after app creation
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5174",
-        "http://127.0.0.1:5174",
-    ],
-    allow_credentials=False,  # 👈 VERY IMPORTANT
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )

@@ -42,7 +42,7 @@ zodiac_persona_backend/
 This application serves as the computation layer. Ensure you have **Python 3.9+** installed locally before proceeding.
 
 1. Activate a Python virtual environment (Highly Recommended):
-   ```bash
+   
    # On Windows
    python -m venv venv
    .\venv\Scripts\activate
