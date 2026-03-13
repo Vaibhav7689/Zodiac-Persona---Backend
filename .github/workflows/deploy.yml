@@ -67,4 +67,4 @@ jobs:
 
             pm2 save
 
-            echo "Backend deployment complete"
+            echo "Backend deployment completed"
