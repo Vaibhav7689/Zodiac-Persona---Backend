@@ -1,0 +1,65 @@
+name: Deploy FastAPI Backend to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Zip backend
+        run: |
+          zip -r backend.zip . -x "*.git*" "venv/*" "__pycache__/*"
+
+      - name: Copy zip to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "backend.zip"
+          target: "/var/www/backend"
+
+      - name: Deploy backend on EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /var/www/backend
+
+            echo "Cleaning old backend..."
+            rm -rf app
+            mkdir -p app
+
+            echo "Extracting backend..."
+            unzip -o backend.zip -d app
+            rm backend.zip
+
+            cd app
+
+            echo "Activating virtual environment..."
+            source /var/www/backend/venv/bin/activate
+
+            echo "Installing dependencies..."
+            pip install -r requirements.txt
+
+            echo "Restarting FastAPI backend..."
+
+            pm2 delete backend || true
+
+            pm2 start uvicorn \
+              --name backend \
+              --interpreter /var/www/backend/venv/bin/python \
+              -- api:app --host 0.0.0.0 --port 8000
+
+            pm2 save
+
+            echo "Backend deployment completed!"
